@@ -263,7 +263,11 @@ static const Tensor& _exec_fft(Tensor& out, const Tensor& self, IntArrayRef out_
   DimVector batched_sizes(signal_ndim + 1);
   batched_sizes[0] = -1;
   std::copy(input.sizes().cbegin() + batch_dims, input.sizes().cend(), batched_sizes.begin() + 1);
-  input = input.reshape(batched_sizes);
+  if (input.is_contiguous()) {
+    input = input.view(batched_sizes);
+  } else {
+    input = input.reshape(batched_sizes);
+  }
 
   const auto batch_size = input.sizes()[0];
   DimVector signal_size(signal_ndim + 1);
